@@ -1,6 +1,6 @@
 const usernamePattern =
-  /^(?=.{6,20}$)(?![_.-])(?!.*[_.-]{2})[a-zA-Z0-9._-]+(?<![_.-])$/g;
-const tweetPattern = /^[\w\n\r\t ]{1,140}$/g;
+  /^(?=.{6,20}$)(?![_.-])(?!.*[_.-]{2})[a-zA-Z0-9._-]+(?<![_.-])$/;
+const tweetPattern = /^[\w\n\r\t ]{1,140}$/;
 
 const urlPattern = new RegExp(
   '^(https?:\\/\\/)?' + // protocol
@@ -13,24 +13,30 @@ const urlPattern = new RegExp(
 ); // fragment locator
 
 function validUsername(str) {
-  return !!usernamePattern.test(str);
+  return new Promise((resolve) => {
+    resolve({ validatedUser: !!usernamePattern.test(str) });
+  });
 }
 function validURL(str) {
-  return !!urlPattern.test(str);
-}
-function validUser(username, avatar) {
   return new Promise((resolve) => {
-    resolve({ valid: validUsername(username) && validURL(avatar) });
+    resolve({ validatedURL: !!urlPattern.test(str) });
   });
+}
+async function validUser(username, avatar) {
+  const { validatedUser } = await validUsername(username);
+  const { validatedURL } = await validURL(avatar);
+  return validatedUser && validatedURL;
 }
 
 function validTweetText(str) {
-  return !!tweetPattern.test(str);
-}
-function validTweet(username, tweet) {
   return new Promise((resolve) => {
-    resolve({ valid: validUsername(username) && validTweetText(tweet) });
+    resolve({ validString: !!tweetPattern.test(str) });
   });
+}
+async function validTweet(username, tweet) {
+  const { validatedUser } = await validUsername(username);
+  const { validString } = await validTweetText(tweet);
+  return validatedUser && validString;
 }
 
 export { validUser, validTweet };

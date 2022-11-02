@@ -25,24 +25,23 @@ app.use(cors());
 
 app.post('/sign-up', async (req, res) => {
   const { username, avatar } = req.body;
-  const { valid } = await validUser(username, avatar);
-  if (!valid) {
-    res.status(invalidPost.code).send(invalidPost.message);
-  } else {
-    users.push({
-      username,
-      avatar,
-    });
-    objectLiteralUsers[username] = avatar;
-    res.status(postSuccess.code).send(postSuccess.message);
+  const userNotValid = !(await validUser(username, avatar));
+  if (userNotValid) {
+    return res.status(invalidPost.code).send(invalidPost.message);
   }
+  users.push({
+    username,
+    avatar,
+  });
+  objectLiteralUsers[username] = avatar;
+  return res.status(postSuccess.code).send(postSuccess.message);
 });
 
 app.post('/tweets', async (req, res) => {
   const username = req.get('User');
   const { tweet } = req.body;
-  const { valid } = await validTweet(username, tweet);
-  if (!valid) {
+  const tweetNotValid = !(await validTweet(username, tweet));
+  if (tweetNotValid) {
     return res.status(invalidPost.code).send(invalidPost.message);
   }
   tweets.unshift({
