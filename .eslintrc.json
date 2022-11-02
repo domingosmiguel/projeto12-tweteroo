@@ -23,7 +23,13 @@
         "sourceType": "module"
     },
     "rules": {
-        "prettier/prettier": "error",
+        "prettier/prettier": [
+            "error",
+            {
+              "singleQuote": true,
+              "parser": "flow"
+            }
+        ],
         "quotes": [2, "single", { "avoidEscape": true }]
     }
 }

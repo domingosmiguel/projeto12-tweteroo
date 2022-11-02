@@ -1,22 +1,29 @@
-import express from "express";
+import cors from 'cors';
+import express from 'express';
 
-const tweets = [];
+const tweets = [{ oi: 'oi' }];
+// {
+//   username: "bobesponja",
+//   tweet: "eu amo o hub"
+// }
+
+const users = [];
+// {
+//   username: 'bobesponja',
+//   avatar: "https://super.abril.com.br/wp-content/uploads/2020/09/04-09_gato_SITE.jpg?quality=70&strip=info"
+// }
 
 const app = express();
+app.use(express.json());
+app.use(cors());
 
-app.get("/forecast", (req, res) => {
-  forecast.forEach((obj) => {
-    obj.views++;
+app.post('/sign-up', (req, res) => {
+  users.push({
+    [req.body.username]: req.body.username,
+    [req.body.avatar]: req.body.avatar,
   });
-  res.send(forecast);
+  console.log(users);
+  res.send('OK');
 });
 
-app.get("/forecast/:day", (req, res) => {
-  const wantedDay = forecast.find(
-    (obj) => `${obj.day}` === `${req.params.day}`
-  );
-  wantedDay.views++;
-  res.send(wantedDay);
-});
-// configura o servidor pra rodar na porta 5000
 app.listen(5000);
