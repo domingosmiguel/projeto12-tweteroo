@@ -23,53 +23,54 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.post('/sign-up', (req, res) => {
+app.post('/sign-up', async (req, res) => {
   const { username, avatar } = req.body;
-  if (!validUser(username, avatar)) {
+  const { valid } = await validUser(username, avatar);
+  if (!valid) {
     res.status(invalidPost.code).send(invalidPost.message);
-    return;
+  } else {
+    users.push({
+      username,
+      avatar,
+    });
+    objectLiteralUsers[username] = avatar;
+    res.status(postSuccess.code).send(postSuccess.message);
   }
-  users.push({
-    username,
-    avatar,
-  });
-  objectLiteralUsers[username] = avatar;
-  res.status(postSuccess.code).send(postSuccess.message);
 });
 
-app.post('/tweets', (req, res) => {
+app.post('/tweets', async (req, res) => {
   const username = req.get('User');
   const { tweet } = req.body;
-  if (!validTweet(username, tweet)) {
-    res.status(invalidPost.code).send(invalidPost.message);
-    return;
+  const { valid } = await validTweet(username, tweet);
+  if (!valid) {
+    return res.status(invalidPost.code).send(invalidPost.message);
   }
   tweets.unshift({
     username,
     tweet,
   });
-  res.status(postSuccess.code).send(postSuccess.message);
+  return res.status(postSuccess.code).send(postSuccess.message);
 });
 
 app.get('/tweets', (req, res) => {
   const { page } = req.query;
   if (page <= 0) {
     res.status(invalidPage.code).send(invalidPage.message);
-    return;
+  } else {
+    const lastPage = page === 1 ? 0 : (page - 1) * tweetsPerPage;
+    const thisPage = page * tweetsPerPage;
+    const tweetsToShow = tweets.reduce((tweetArray, tweet, index) => {
+      if (lastPage <= index && index < thisPage) {
+        tweetArray.push({
+          ...tweet,
+          avatar: objectLiteralUsers[`${tweet.username}`],
+          // avatar: objectLiteralUsers.username,
+        });
+      }
+      return tweetArray;
+    }, []);
+    res.send(tweetsToShow);
   }
-  const lastPage = page === 1 ? 0 : (page - 1) * tweetsPerPage;
-  const thisPage = page * tweetsPerPage;
-  const tweetsToShow = tweets.reduce((tweetArray, tweet, index) => {
-    if (lastPage <= index && index < thisPage) {
-      tweetArray.push({
-        ...tweet,
-        avatar: objectLiteralUsers[`${tweet.username}`],
-        // avatar: objectLiteralUsers.username,
-      });
-    }
-    return tweetArray;
-  }, []);
-  res.send(tweetsToShow);
 });
 
 app.get('/tweets/:username', (req, res) => {
@@ -77,19 +78,18 @@ app.get('/tweets/:username', (req, res) => {
   const userExists = tweets.some((tweet) => tweet.username === username);
   if (!userExists) {
     res.sendStatus(invalidPage.code);
-    return;
+  } else {
+    const userTweets = tweets.reduce((tweetArray, tweet) => {
+      if (tweet.username === username) {
+        tweetArray.push({
+          ...tweet,
+          avatar: objectLiteralUsers[`${tweet.username}`],
+        });
+      }
+      return tweetArray;
+    }, []);
+    res.send(userTweets);
   }
-  const userTweets = tweets.reduce((tweetArray, tweet) => {
-    if (tweet.username === username) {
-      tweetArray.push({
-        ...tweet,
-        avatar: objectLiteralUsers[`${tweet.username}`],
-      });
-    }
-    return tweetArray;
-  }, []);
-
-  res.send(userTweets);
 });
 
 app.listen(5000);

@@ -19,14 +19,18 @@ function validURL(str) {
   return !!urlPattern.test(str);
 }
 function validUser(username, avatar) {
-  return validUsername(username) && validURL(avatar);
+  return new Promise((resolve) => {
+    resolve({ valid: validUsername(username) && validURL(avatar) });
+  });
 }
 
 function validTweetText(str) {
   return !!tweetPattern.test(str);
 }
 function validTweet(username, tweet) {
-  return validUsername(username) && validTweetText(tweet);
+  return new Promise((resolve) => {
+    resolve({ valid: validUsername(username) && validTweetText(tweet) });
+  });
 }
 
 export { validUser, validTweet };
