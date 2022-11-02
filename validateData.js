@@ -1,8 +1,6 @@
 const usernamePattern =
-  /^(?=.{6,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/g;
-// Lack of negative look-behind support
-const usernamePattern1 = /^(?=[a-zA-Z0-9._]{6,20}$)(?!.*[_.]{2})[^_.].*[^_.]$/g;
-const tweetPattern = /^(?=[a-zA-Z0-9._]{1,140}$)/g;
+  /^(?=.{6,20}$)(?![_.-])(?!.*[_.-]{2})[a-zA-Z0-9._-]+(?<![_.-])$/g;
+const tweetPattern = /^[\w\n\r\t ]{1,140}$/g;
 
 const urlPattern = new RegExp(
   '^(https?:\\/\\/)?' + // protocol
@@ -15,7 +13,7 @@ const urlPattern = new RegExp(
 ); // fragment locator
 
 function validUsername(str) {
-  return !!usernamePattern.test(str) || !!usernamePattern1.test(str);
+  return !!usernamePattern.test(str);
 }
 function validURL(str) {
   return !!urlPattern.test(str);
