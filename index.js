@@ -23,9 +23,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.post('/sign-up', async (req, res) => {
+app.post('/sign-up', (req, res) => {
   const { username, avatar } = req.body;
-  const userNotValid = !(await validUser(username, avatar));
+  const userNotValid = !validUser(username, avatar);
   if (userNotValid) {
     return res.status(invalidPost.code).send(invalidPost.message);
   }
@@ -37,10 +37,10 @@ app.post('/sign-up', async (req, res) => {
   return res.status(postSuccess.code).send(postSuccess.message);
 });
 
-app.post('/tweets', async (req, res) => {
+app.post('/tweets', (req, res) => {
   const username = req.get('User');
   const { tweet } = req.body;
-  const tweetNotValid = !(await validTweet(username, tweet));
+  const tweetNotValid = !validTweet(username, tweet);
   if (tweetNotValid) {
     return res.status(invalidPost.code).send(invalidPost.message);
   }
